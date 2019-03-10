@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
-    <com.tolcol.ui.cobweb.CobwebView
+    <com.tolcol.lib.cobweb.CobwebView
         android:id="@+id/cobweb"
         android:layout_width="match_parent"
         android:layout_height="300dp"

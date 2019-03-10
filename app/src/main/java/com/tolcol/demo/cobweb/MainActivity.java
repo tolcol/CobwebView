@@ -3,7 +3,7 @@ package com.tolcol.demo.cobweb;
 import android.os.Bundle;
 import android.widget.SeekBar;
 
-import com.tolcol.ui.cobweb.CobwebView;
+import com.tolcol.lib.cobweb.CobwebView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
