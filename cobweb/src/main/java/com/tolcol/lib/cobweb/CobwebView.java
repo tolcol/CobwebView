@@ -1,4 +1,4 @@
-package com.tolcol.ui.cobweb;
+package com.tolcol.lib.cobweb;
 
 import android.annotation.TargetApi;
 import android.content.Context;

@@ -12,6 +12,18 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
+    lintOptions {
+        abortOnError false
+    }
+
+    task intoJar(type: Copy) {
+        delete 'build/libs/CobwebView.jar'
+        from('build/intermediates/bundles/release/')
+        into('build/libs/')
+        include('classes.jar')
+        rename ('classes.jar', 'CobwebView.jar')
+    }
+    intoJar.dependsOn(build)
 
     buildTypes {
         release {
@@ -31,6 +43,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
+
 apply from: 'bintray-config.gradle'
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+//一定要在local.properties中配置bintray.user bintray.apikey参数，对应bintray的用户名和APIKEY
