@@ -2,6 +2,7 @@ package com.tolcol.lib.cobweb;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -19,35 +20,36 @@ import androidx.annotation.Nullable;
 /**
  * 蛛网
  */
+@SuppressWarnings("unused")
 public class CobwebView extends View {
 
-    private int mCount = 5;//顶点数
+    private int mCount;//顶点数
     private float mAngle;//顶点角度
     private int mCenterX, mCenterY;//中心点
     private int mRadius;//半径
 
     //背景线条
     private Paint mCobwebPaint;
-    private int mCobwebColor = 0xFF404040;//背景线条颜色
-    private float mBackLinePer = 0.7f;//半径系数,给文字留出空间
-    private int mCobwebStrokeWidth = 2;//线条宽度
+    private float mCobwebScale;//半径系数,给文字留出空间
+    private float mCobwebWidth;//背景线条宽度
+    private int mCobwebColor;//背景线条颜色
 
     //分数
     private Paint mScorePaint;
     private Path mPath;//线条Path
-    private float mScoreMax = 10;//最大分数
-    private boolean mScorePoint = true;//是否要绘制点
-    private boolean mScoreFill = false;//是否要填充
-    private float mSetp = 1;//分数间隔
+    private float mScoreMax;//最大分数
+    private boolean mScorePoint;//是否要绘制点
+    private float mScoreSetp;//分数间隔
     private float mSetpLegth;//间隔的长度
-    private int mScoreStrokeWidth = 6;//分数线条宽度
+    private float mScoreStrokeWidth;//分数线条宽度
     private float mScoreUnitLength;//每一分的长度
+    private boolean isScoreFill;//分数是否填充
 
     //文字
-    private int mTextSize = 20;//大小
-    private int mTextColor;//颜色
     private Paint mTextPaint;//画笔
-    private List<DataItem> mDatas;
+    private float mTitleSize;//标题大小
+    private int mTitleColor;//标题颜色
+    private List<DataItem> mDataList;
     private String[] mTitles;
 
     public CobwebView(Context context) {
@@ -71,56 +73,75 @@ public class CobwebView extends View {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        //背景线条
         mPath = new Path();
         mCobwebPaint = new Paint();
-        mCobwebPaint.setColor(mCobwebColor);
-        mCobwebPaint.setAntiAlias(true);
-        mCobwebPaint.setStyle(Paint.Style.STROKE);
-        mCobwebPaint.setStrokeWidth(mCobwebStrokeWidth);
         mScorePaint = new Paint();
-        mScorePaint.setAntiAlias(true);
-        mScorePaint.setStyle(Paint.Style.STROKE);
-        mScorePaint.setStrokeWidth(mScoreStrokeWidth);
         mTextPaint = new Paint();
+        mCobwebPaint.setAntiAlias(true);
+        mScorePaint.setAntiAlias(true);
         mTextPaint.setAntiAlias(true);
-        mTextPaint.setTextSize(mTextSize);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CobwebView);
+        //背景线条
+        mCobwebColor = typedArray.getColor(R.styleable.CobwebView_cbvColor, 0xFF000000);
+        mCobwebScale = typedArray.getFloat(R.styleable.CobwebView_cbvScale, 0.7f);
+        mCobwebWidth = typedArray.getDimension(R.styleable.CobwebView_cbvStrokeWidth, 2);
+        //分数
+        mScoreMax = typedArray.getFloat(R.styleable.CobwebView_cbvScoreMax, 10f);
+        mScoreSetp = typedArray.getInteger(R.styleable.CobwebView_cbvScoreStep, 1);
+        mScoreStrokeWidth = typedArray
+                .getDimension(R.styleable.CobwebView_cbvScoreStrokeWidth, mCobwebWidth);
+        mScorePoint = typedArray.getBoolean(R.styleable.CobwebView_cbvScorePoint, false);
+        isScoreFill = typedArray.getBoolean(R.styleable.CobwebView_cbvScoreFill, false);
+        //标题
+        mTitleSize = typedArray.getDimension(R.styleable.CobwebView_cbvTitleSize, 30);
+        mTitleColor = typedArray.getColor(R.styleable.CobwebView_cbvTitleColor, mCobwebColor);
+        typedArray.recycle();
+        initPaint();
+    }
+
+    private void initPaint() {
+        //背景线条
+        mCobwebPaint.setColor(mCobwebColor);
+        mCobwebPaint.setStyle(Paint.Style.STROKE);
+        mCobwebPaint.setStrokeWidth(mCobwebWidth);
+        //分数
+        mScorePaint.setStyle(isScoreFill ? Paint.Style.FILL : Paint.Style.STROKE);
+        mScorePaint.setStrokeWidth(mScoreStrokeWidth);
+        //标题
+        mTextPaint.setTextSize(mTitleSize);
+        mTextPaint.setColor(mTitleColor);
         mTextPaint.setStyle(Paint.Style.STROKE);
     }
 
     private void initBasicData() {
+        String errmsg = "Inconsistent number of titles or data length";
         if (mTitles != null && mTitles.length > 0) {
             mCount = mTitles.length;
         }
-        if (mCount > 0) {
-            mAngle = 360f / mCount;
+        if (mDataList != null && mDataList.size() > 0) {
+            int dataLength = mDataList.get(0).length();
+            if (mCount > 0 && mCount != dataLength) {
+                throw new RuntimeException(errmsg);
+            }
+            for (DataItem data : mDataList) {
+                if (dataLength != data.length()) {
+                    throw new RuntimeException(errmsg);
+                }
+            }
         }
+        mAngle = 360f / mCount;
         mScoreUnitLength = mRadius / mScoreMax;
         mPath.reset();
         mPath.moveTo(mCenterX, mCenterY);
-    }
-
-    public void setCount(int count) {
-        mCount = count;
-        mDatas = new ArrayList<>();
-        float[] scs1 = new float[count];
-        float[] scs2 = new float[count];
-        mTitles = new String[count];
-        for (int i = 0; i < count; i++) {
-            scs1[i] = i * 1.5f;
-            scs2[i] = i * 1f;
-            mTitles[i] = "标题-" + i;
-        }
-        mDatas.add(new DataItem(0xFF00FF00, scs1));
-        mDatas.add(new DataItem(0xFF0000FF, scs2));
-        postInvalidate();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         mCenterX = w / 2;
         mCenterY = h / 2;
-        mRadius = (int) (Math.min(w, h) / 2 * mBackLinePer);
-        mSetpLegth = mRadius / mSetp;
+        mRadius = (int) (Math.min(w, h) / 2 * mCobwebScale);
+        mSetpLegth = mRadius / mScoreSetp;
         postInvalidate();
     }
 
@@ -128,8 +149,8 @@ public class CobwebView extends View {
     protected void onDraw(Canvas canvas) {
         drawCobweb(canvas);
         drawText(canvas);
-        if (mDatas != null && mDatas.size() > 0) {
-            for (DataItem dataItem : mDatas) {
+        if (mDataList != null && mDataList.size() > 0) {
+            for (DataItem dataItem : mDataList) {
                 drawScore(canvas, dataItem);
             }
         }
@@ -140,12 +161,11 @@ public class CobwebView extends View {
      */
     private void drawCobweb(Canvas canvas) {
         initBasicData();
-        for (int i = 1; i <= mSetp; i++) {
+        for (int i = 1; i <= mScoreSetp; i++) {
             float curR = mSetpLegth * i;
             mPath.reset();
             for (int j = 0; j < mCount; j++) {
                 float angle = (float) (Math.toRadians(mAngle) * j);
-                Log.d("angleC=", angle + "");
                 if (j == 0) {
                     mPath.moveTo(mCenterX + curR, mCenterY);
                 } else {
@@ -240,7 +260,6 @@ public class CobwebView extends View {
         }
     }
 
-
     public static class DataItem {
         @ColorInt
         private int mColor;
@@ -250,6 +269,27 @@ public class CobwebView extends View {
             this.mColor = mColor;
             this.mScores = mScores;
         }
+
+        private int length() {
+            return mScores == null ? 0 : mScores.length;
+        }
     }
+
+    public void testCount(int count) {
+        mCount = count;
+        mDataList = new ArrayList<>();
+        float[] scs1 = new float[count];
+        float[] scs2 = new float[count];
+        mTitles = new String[count];
+        for (int i = 0; i < count; i++) {
+            scs1[i] = i * 1.5f;
+            scs2[i] = i * 1f;
+            mTitles[i] = "标题-" + i;
+        }
+        mDataList.add(new DataItem(0xFF00FF00, scs1));
+        mDataList.add(new DataItem(0xFF0000FF, scs2));
+        postInvalidate();
+    }
+
 
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CobwebView">
+        <!-- 背景线条颜色 -->
+        <attr name="cbvColor" format="color"/>
+        <!--背景线条宽度-->
+        <attr name="cbvStrokeWidth" format="dimension"/>
+        <!--蛛网半径占宽度的比-->
+        <attr name="cbvScale" format="float"/>
+        <!--最大分数-->
+        <attr name="cbvScoreMax" format="float"/>
+        <!--分数分割-->
+        <attr name="cbvScoreStep" format="integer"/>
+        <!--分数分割-->
+        <attr name="cbvScorePoint" format="boolean"/>
+        <!--分数线条宽度-->
+        <attr name="cbvScoreStrokeWidth" format="dimension"/>
+        <!--是否填充-->
+        <attr name="cbvScoreFill" format="boolean"/>
+        <!--文字大小-->
+        <attr name="cbvTitleSize" format="dimension"/>
+        <!--标题颜色-->
+        <attr name="cbvTitleColor" format="color"/>
+    </declare-styleable>
+</resources>
