@@ -11,7 +11,7 @@
         <attr name="cbvScoreMax" format="float"/>
         <!--分数分割-->
         <attr name="cbvScoreStep" format="integer"/>
-        <!--分数分割-->
+        <!--是否绘制分数点-->
         <attr name="cbvScorePoint" format="boolean"/>
         <!--分数线条宽度-->
         <attr name="cbvScoreStrokeWidth" format="dimension"/>
