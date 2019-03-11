@@ -33,19 +33,16 @@ in xml
 
 Attributes
 ```Attributes
-    <declare-styleable name="CobwebView">
-        <!--cbvColor 背景线条颜色 -->
-        <!--cbvStrokeWidth 背景线条宽度-->
-        <!--cbvScale 蛛网半径占宽度的比-->
-        <attr name="cbvScale" format="float"/>
-        <!--cbvScoreMax 最大分数-->
-        <!--cbvScoreStep 分数分割-->
-        <!--cbvScorePoint 是否绘制分数点-->
-        <!--cbvScoreStrokeWidth 分数线条宽度-->
-        <!--cbvScoreFill 是否填充-->
-        <!--cbvTitleSize 文字大小-->
-        <!--cbvTitleColor 标题颜色-->
-    </declare-styleable>
+    <!--cbvColor 背景线条颜色 -->
+    <!--cbvStrokeWidth 背景线条宽度-->
+    <!--cbvScale 蛛网半径占宽度的比-->
+    <!--cbvScoreMax 最大分数-->
+    <!--cbvScoreStep 分数分割-->
+    <!--cbvScorePoint 是否绘制分数点-->
+    <!--cbvScoreStrokeWidth 分数线条宽度-->
+    <!--cbvScoreFill 是否填充-->
+    <!--cbvTitleSize 文字大小-->
+    <!--cbvTitleColor 标题颜色-->
 ```
 ## Feature
 
