@@ -15,14 +15,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         cobwebView = findViewById(R.id.cobweb);
-        SeekBar seekBar = findViewById(R.id.seekBar);
+        cobwebView.testCount(3);
+        SeekBar seekBar = findViewById(R.id.seekbar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress < 3) {
+                if (progress < 0) {
                     progress = 3;
                 }
-                cobwebView.setCount(progress);
+                cobwebView.testCount(progress);
             }
 
             @Override
