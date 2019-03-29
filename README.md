@@ -8,7 +8,7 @@ CobwebView is a custom view that presents data from multiple angles, also called
 ## How to use
 in build.gradle
 ```groovy
-implementation 'com.tolcol.lib:Cobwebview:0.0.2'
+implementation 'com.tolcol.lib:cobwebview:0.0.2'
 ```
 in xml
 ```xml
