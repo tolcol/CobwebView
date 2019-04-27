@@ -260,6 +260,18 @@ public class CobwebView extends View {
         }
     }
 
+    public CobwebView setTitles(String[] titles) {
+        mTitles = titles;
+        postInvalidate();
+        return this;
+    }
+
+    public CobwebView addDates(@ColorInt int color, float[] scores) {
+        mDataList.add(new DataItem(color, scores));
+        postInvalidate();
+        return this;
+    }
+
     public static class DataItem {
         @ColorInt
         private int mColor;
