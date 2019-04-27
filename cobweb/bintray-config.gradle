@@ -5,10 +5,10 @@ ext {
     bintrayName = 'cobwebview'
 
     //以下三项均是必配项
-    //对应包信息就是com.tolcol.lib:cobview:0.0.1
+    //对应包信息就是com.tolcol.lib:cobview:0.0.3
     publishedGroupId = 'com.tolcol.lib'
     artifact = 'cobwebview'
-    libraryVersion = '0.0.2'
+    libraryVersion = '0.0.3'
 
     //对开源库的描述
     libraryName = 'CobwebView'
