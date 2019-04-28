@@ -1,9 +1,13 @@
 package com.tolcol.demo.cobweb;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.SeekBar;
 
 import com.tolcol.lib.cobweb.CobwebView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         cobwebView = findViewById(R.id.cobweb);
-        cobwebView.testCount(3);
+        initCobView(6);
         SeekBar seekBar = findViewById(R.id.seekbar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -23,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
                 if (progress < 0) {
                     progress = 3;
                 }
-                cobwebView.testCount(progress);
+                initCobView(progress);
             }
 
             @Override
@@ -37,4 +41,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void initCobView(int count) {
+        List<String> titles = new ArrayList<>();
+        int[] score0 = new int[count];
+        int[] score1 = new int[count];
+        for (int i = 0; i < count; i++) {
+            titles.add("Tit-" + i);
+            score0[i] = i;
+            score1[i] = i * 2;
+        }
+        cobwebView.setTitles(titles)
+                .addDates(Color.BLUE, score0)
+                .addDates(Color.YELLOW, score1);
+    }
+
 }

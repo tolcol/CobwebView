@@ -49,8 +49,8 @@ public class CobwebView extends View {
     private Paint mTextPaint;//画笔
     private float mTitleSize;//标题大小
     private int mTitleColor;//标题颜色
-    private List<DataItem> mDataList;
-    private String[] mTitles;
+    private List<DataItem> mDataList = new ArrayList<>();
+    private List<String> mTitleList = new ArrayList<>();
 
     public CobwebView(Context context) {
         this(context, null);
@@ -114,22 +114,7 @@ public class CobwebView extends View {
         mTextPaint.setStyle(Paint.Style.STROKE);
     }
 
-    private void initBasicData() {
-        String errmsg = "Inconsistent number of titles or data length";
-        if (mTitles != null && mTitles.length > 0) {
-            mCount = mTitles.length;
-        }
-        if (mDataList != null && mDataList.size() > 0) {
-            int dataLength = mDataList.get(0).length();
-            if (mCount > 0 && mCount != dataLength) {
-                throw new RuntimeException(errmsg);
-            }
-            for (DataItem data : mDataList) {
-                if (dataLength != data.length()) {
-                    throw new RuntimeException(errmsg);
-                }
-            }
-        }
+    private void resetPath() {
         mAngle = 360f / mCount;
         mScoreUnitLength = mRadius / mScoreMax;
         mPath.reset();
@@ -151,6 +136,7 @@ public class CobwebView extends View {
         drawText(canvas);
         if (mDataList != null && mDataList.size() > 0) {
             for (DataItem dataItem : mDataList) {
+                dataItem.mScores = reviseData(dataItem.mScores);
                 drawScore(canvas, dataItem);
             }
         }
@@ -160,7 +146,7 @@ public class CobwebView extends View {
      * 绘制网状图
      */
     private void drawCobweb(Canvas canvas) {
-        initBasicData();
+        resetPath();
         for (int i = 1; i <= mScoreSetp; i++) {
             float curR = mSetpLegth * i;
             mPath.reset();
@@ -197,7 +183,7 @@ public class CobwebView extends View {
         if (dataItem == null || dataItem.mScores == null || dataItem.mScores.length != mCount) {
             return;
         }
-        initBasicData();
+        resetPath();
         mScorePaint.setColor(dataItem.mColor);
         for (int index = 0; index < mCount; index++) {
             float curRadius = dataItem.mScores[index] * mScoreUnitLength;//该分数应绘制的长度
@@ -232,8 +218,8 @@ public class CobwebView extends View {
      * 绘制文字
      */
     private void drawText(Canvas canvas) {
-        initBasicData();
-        if (mTitles == null || mTitles.length < 1) {
+        resetPath();
+        if (mTitleList == null || mTitleList.size() < 1) {
             return;
         }
         Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
@@ -244,30 +230,68 @@ public class CobwebView extends View {
             float y = (float) (mCenterY + (mRadius + fontHeight / 2) * Math.sin(scoreAngle));
             if (scoreAngle >= 0 && scoreAngle <= Math.PI / 2) {
                 //第四象限
-                canvas.drawText(mTitles[i], x, y + fontHeight / 3, mTextPaint);
+                canvas.drawText(mTitleList.get(i), x, y + fontHeight / 3, mTextPaint);
             } else if (scoreAngle > Math.PI / 2 && scoreAngle <= Math.PI) {
                 //第三象限
-                float drs = mTextPaint.measureText(mTitles[i]);
-                canvas.drawText(mTitles[i], x - drs, y + fontHeight / 3, mTextPaint);
+                float drs = mTextPaint.measureText(mTitleList.get(i));
+                canvas.drawText(mTitleList.get(i), x - drs, y + fontHeight / 3, mTextPaint);
             } else if (scoreAngle > Math.PI && scoreAngle < 3 * Math.PI / 2) {
                 //第二象限
-                float drs = mTextPaint.measureText(mTitles[i]);
-                canvas.drawText(mTitles[i], x - drs, y, mTextPaint);
+                float drs = mTextPaint.measureText(mTitleList.get(i));
+                canvas.drawText(mTitleList.get(i), x - drs, y, mTextPaint);
             } else {
                 //第一象限
-                canvas.drawText(mTitles[i], x, y, mTextPaint);
+                canvas.drawText(mTitleList.get(i), x, y, mTextPaint);
             }
         }
     }
 
-    public CobwebView setTitles(String[] titles) {
-        mTitles = titles;
+    private int[] reviseData(int[] originList) {
+        if (originList.length == mCount) {
+            return originList;
+        } else {
+            int[] newArray = new int[mCount];
+            if (originList.length < mCount) {
+                System.arraycopy(originList, 0, newArray, 0, originList.length);
+            } else {
+                System.arraycopy(originList, 0, newArray, 0, mCount);
+            }
+            return newArray;
+        }
+    }
+
+    public CobwebView setTitles(List<String> titles) {
+        mTitleList = titles;
+        mCount = mTitleList.size();
+        return this;
+    }
+
+    public CobwebView addDates(@ColorInt int color, List<Integer> scores) {
+        if (scores == null || scores.size() < 3) {
+            return this;
+        }
+        int[] scArray = new int[scores.size()];
+        for (int i = 0; i < scores.size(); i++) {
+            scArray[i] = scores.get(i);
+        }
+        mDataList.add(new DataItem(color, scArray));
         postInvalidate();
         return this;
     }
 
-    public CobwebView addDates(@ColorInt int color, float[] scores) {
+    public CobwebView addDates(@ColorInt int color, int[] scores) {
+        if (scores == null || scores.length < 3) {
+            return this;
+        }
         mDataList.add(new DataItem(color, scores));
+        postInvalidate();
+        return this;
+    }
+
+    public CobwebView addDataItem(DataItem data) {
+        if (data != null) {
+            mDataList.add(data);
+        }
         postInvalidate();
         return this;
     }
@@ -275,11 +299,12 @@ public class CobwebView extends View {
     public static class DataItem {
         @ColorInt
         private int mColor;
-        private float[] mScores;
+        private int[] mScores;
 
-        public DataItem(@ColorInt int mColor, float[] mScores) {
+        @SuppressWarnings("WeakerAccess")
+        public DataItem(@ColorInt int mColor, int[] scores) {
             this.mColor = mColor;
-            this.mScores = mScores;
+            this.mScores = scores;
         }
 
         private int length() {
@@ -290,13 +315,12 @@ public class CobwebView extends View {
     public void testCount(int count) {
         mCount = count;
         mDataList = new ArrayList<>();
-        float[] scs1 = new float[count];
-        float[] scs2 = new float[count];
-        mTitles = new String[count];
+        int[] scs1 = new int[count];
+        int[] scs2 = new int[count];
         for (int i = 0; i < count; i++) {
-            scs1[i] = i * 1.5f;
-            scs2[i] = i * 1f;
-            mTitles[i] = "标题-" + i;
+            scs1[i] = ((int) (i * 1.5));
+            scs2[i] = ((int) (i * 1.5));
+            mTitleList.add(String.valueOf(i));
         }
         mDataList.add(new DataItem(0xFF00FF00, scs1));
         mDataList.add(new DataItem(0xFF0000FF, scs2));
