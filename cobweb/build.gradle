@@ -48,3 +48,4 @@ apply from: 'bintray-config.gradle'
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
 //一定要在local.properties中配置bintray.user bintray.apikey参数，对应bintray的用户名和APIKEY
+//gradlew clean install bintrayUpload
